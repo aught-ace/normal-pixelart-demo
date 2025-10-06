@@ -1,28 +1,27 @@
-
-canvas {
-    /* image-rendering: pixelated; */
-    margin: auto;
-}
-
 @media (min-aspect-ratio: 1/1) {
-    canvas {
+    #canvas {
         inline-size: 100svh;
         block-size: 100svh;
     }
 }
 
 @media (max-aspect-ratio: 1/1) {
-    canvas {
+    #canvas {
         inline-size: 100svw;
         block-size: 100svw;
     }
 }
 
+.none {
+    display: none;
+}
+
 body {
-    background-color: #333;
+    background-color: #000;
     color: #FFF;
     inline-size: 100svw;
     block-size: 100svh;
+    text-align: center;
     overflow: hidden;
 }
 

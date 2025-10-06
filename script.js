@@ -110,9 +110,7 @@ const adapterResult = async (device) => {
     indexBuffer.unmap()
 
     // Image
-    const normalImage = document.createElement('img');
-    normalImage.crossOrigin = 'Anonymous';
-    normalImage.src = './normal.png';
+    const normalImage = document.querySelector('#normal-pixelart');
     await normalImage.decode();
     const normalBitmap = await createImageBitmap(normalImage);
 
@@ -143,7 +141,7 @@ const adapterResult = async (device) => {
             struct Uniforms {
                 light : vec3<f32>,
                 matrix : mat4x4<f32>,
-                normalMatrix : mat4x4<f32>
+                rotateMatrix : mat4x4<f32>
             }
             @binding(0) @group(0) var<uniform> uniforms : Uniforms;
             @binding(1) @group(0) var normalTexture: texture_2d<f32>;
@@ -181,9 +179,9 @@ const adapterResult = async (device) => {
 
                 var vertexTangent : vec3f = cross(vertexNormal, vertexBinormal);
 
-                var normal4 : vec4f = uniforms.normalMatrix * vec4f(vertexNormal, 0.0);
-                var binormal4 : vec4f = uniforms.normalMatrix * vec4f(vertexBinormal, 0.0);
-                var tangent4 : vec4f = uniforms.normalMatrix * vec4f(vertexTangent, 0.0);
+                var normal4 : vec4f = uniforms.rotateMatrix * vec4f(vertexNormal, 0.0);
+                var binormal4 : vec4f = uniforms.rotateMatrix * vec4f(vertexBinormal, 0.0);
+                var tangent4 : vec4f = uniforms.rotateMatrix * vec4f(vertexTangent, 0.0);
 
                 var normal : vec3f = vec3f(normal4.x, normal4.y, normal4.z);
                 var binormal : vec3f = vec3f(binormal4.x, binormal4.y, binormal4.z);
@@ -200,7 +198,7 @@ const adapterResult = async (device) => {
                 n += normalColor.b * normal;
                 n = normalize(n);
 
-                var l : f32 = max(dot(n, normalize(uniforms.light)), 0.0);
+                var l : f32 = max(dot(n, normalize(uniforms.light)), 0.125);
                 
                 return vec4f(l, l, l, 1.0);
             }
@@ -418,7 +416,7 @@ const adapterResult = async (device) => {
         1,
     ])
     
-    let normalMatrix = new Float32Array([
+    let rotateMatrix = new Float32Array([
         1,
         0,
         0,
@@ -499,11 +497,11 @@ const adapterResult = async (device) => {
         
         matrix = multiply(matrix, rotateX)
         matrix = multiply(matrix, rotateY)
-        normalMatrix = multiply(normalMatrix, rotateX)
-        normalMatrix = multiply(normalMatrix, rotateY)
+        rotateMatrix = multiply(rotateMatrix, rotateX)
+        rotateMatrix = multiply(rotateMatrix, rotateY)
         
         device.queue.writeBuffer(uniformBuffer, 4 * 4, matrix)
-        device.queue.writeBuffer(uniformBuffer, (4 + 16) * 4, normalMatrix)
+        device.queue.writeBuffer(uniformBuffer, (4 + 16) * 4, rotateMatrix)
         
         const commandEncoder = device.createCommandEncoder()
 
